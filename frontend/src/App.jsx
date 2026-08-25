@@ -2,6 +2,7 @@ import { Routes, Route, Link } from "react-router-dom";
 import PublicScan from "./pages/PublicScan";
 import OfficerApp from "./pages/OfficerApp";
 import ConsumerCheck from "./pages/ConsumerCheck";
+import RetailerDashboard from "./pages/RetailerDashboard";
 
 function Home() {
   const roles = [
@@ -57,6 +58,7 @@ export default function App() {
       <Route path="/scan/:instrumentId" element={<PublicScan />} />
       <Route path="/officer" element={<OfficerApp />} />
       <Route path="/consumer" element={<ConsumerCheck />} />
+      <Route path="/retailer" element={<RetailerDashboard />} />
     </Routes>
   );
 }
