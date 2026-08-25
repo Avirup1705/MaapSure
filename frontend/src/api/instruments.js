@@ -1,6 +1,8 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:5000/api";
+// Automatically uses whatever host the page was loaded from —
+// works correctly whether accessed via localhost or a network IP (e.g. from a phone)
+const API_BASE = `http://${window.location.hostname}:5000/api`;
 
 // Fetches a single instrument's live status — used by the public scan page
 export async function getInstrumentStatus(instrumentId) {
@@ -11,5 +13,11 @@ export async function getInstrumentStatus(instrumentId) {
 // Fetches all instruments — used by dashboards later
 export async function getAllInstruments() {
   const res = await axios.get(`${API_BASE}/instruments`);
+  return res.data;
+}
+
+// Registers a newly verified instrument — used by the officer form
+export async function createInstrument(payload) {
+  const res = await axios.post(`${API_BASE}/instruments`, payload);
   return res.data;
 }
