@@ -4,6 +4,7 @@ import {
   getInstrumentById,
   getAllInstruments,
   addFeedback,
+  verifyInstrument,
 } from "../controllers/instrumentController.js";
 
 const router = express.Router();
@@ -12,5 +13,6 @@ router.post("/", createInstrument);
 router.get("/", getAllInstruments);
 router.get("/:instrumentId", getInstrumentById);
 router.post("/:instrumentId/feedback", addFeedback);
+router.post("/:instrumentId/verify", verifyInstrument);
 
 export default router;

@@ -135,3 +135,54 @@ export async function addFeedback(req, res) {
     res.status(500).json({ error: "Server error submitting feedback" });
   }
 }
+
+// POST /api/instruments/:instrumentId/verify
+// Field officer submits a compliance checklist + comment + new expiry date
+export async function verifyInstrument(req, res) {
+  try {
+    const { instrumentId } = req.params;
+    const { officerName, officerId, checklist, comment, expiryDate } =
+      req.body;
+
+    if (!officerName || !officerId || !checklist || !expiryDate) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const instrument = await Instrument.findOne({ instrumentId });
+    if (!instrument) {
+      return res.status(404).json({ error: "Instrument not found" });
+    }
+
+    const allPassed = checklist.every((item) => item.passed);
+    const wasUnverified = ["pending", "expired"].includes(instrument.status);
+
+    const newStatus = allPassed ? "valid" : "flagged";
+    const result = allPassed
+      ? wasUnverified
+        ? "verified"
+        : "re-verified"
+      : "flagged";
+
+    instrument.status = newStatus;
+    instrument.verificationDate = new Date();
+    instrument.expiryDate = expiryDate;
+
+    instrument.verificationHistory.push({
+      officerName,
+      officerId,
+      result,
+      notes: comment || "",
+      checklist,
+    });
+
+    if (!allPassed) {
+      instrument.tamperFlags += 1;
+    }
+
+    await instrument.save();
+    res.json(instrument);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error verifying instrument" });
+  }
+}

@@ -36,3 +36,12 @@ export async function submitFeedback(instrumentId, payload) {
   );
   return res.data;
 }
+
+// Officer submits compliance checklist + comment + new expiry date
+export async function verifyInstrument(instrumentId, payload) {
+  const res = await axios.post(
+    `${API_BASE}/instruments/${instrumentId}/verify`,
+    payload
+  );
+  return res.data;
+}
