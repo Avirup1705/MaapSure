@@ -21,3 +21,18 @@ export async function createInstrument(payload) {
   const res = await axios.post(`${API_BASE}/instruments`, payload);
   return res.data;
 }
+
+// Fetches instruments ranked by inspection risk — used by the risk dashboard
+export async function getRiskRanked() {
+  const res = await axios.get(`${API_BASE}/risk/ranked`);
+  return res.data;
+}
+
+// Submits consumer feedback/complaint for an instrument
+export async function submitFeedback(instrumentId, payload) {
+  const res = await axios.post(
+    `${API_BASE}/instruments/${instrumentId}/feedback`,
+    payload
+  );
+  return res.data;
+}

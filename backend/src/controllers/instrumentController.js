@@ -104,3 +104,34 @@ export async function getAllInstruments(req, res) {
     res.status(500).json({ error: "Server error fetching instruments" });
   }
 }
+
+// POST /api/instruments/:instrumentId/feedback
+// Consumers submit feedback or a complaint about an instrument
+export async function addFeedback(req, res) {
+  try {
+    const { instrumentId } = req.params;
+    const { name, contact, message } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: "Feedback message is required" });
+    }
+
+    const instrument = await Instrument.findOne({ instrumentId });
+    if (!instrument) {
+      return res.status(404).json({ error: "Instrument not found" });
+    }
+
+    instrument.feedbackList.push({
+      name: name?.trim() || "Anonymous",
+      contact: contact?.trim() || "",
+      message: message.trim(),
+    });
+    instrument.complaintCount += 1;
+
+    await instrument.save();
+    res.status(201).json({ message: "Feedback submitted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error submitting feedback" });
+  }
+}
