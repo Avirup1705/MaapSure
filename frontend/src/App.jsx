@@ -28,10 +28,15 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-10">
-      <h1 className="text-3xl font-bold text-gray-800 mb-2">MaapSure</h1>
-      <p className="text-gray-500 mb-8 text-center max-w-md">
-        A real-time field verification and public trust layer for weighing
-        instruments.
+      <h1 className="text-3xl font-bold text-gray-800 mb-3">MaapSure</h1>
+      <p className="text-gray-600 mb-8 text-center max-w-xl leading-relaxed">
+        MaapSure is a real-time field verification and public trust layer for
+        weighing and measuring instruments. It complements the government's
+        eMaap platform by tracking what happens{" "}
+        <span className="font-medium text-gray-800">after</span> an
+        instrument is officially verified — giving every instrument a digital
+        passport that consumers can check instantly, officers can re-verify
+        in the field, and retailers can track for upcoming renewals.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-3xl">
