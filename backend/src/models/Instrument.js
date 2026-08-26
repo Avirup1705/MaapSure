@@ -62,6 +62,7 @@ const instrumentSchema = new mongoose.Schema(
 
     // Only relevant when registeredBy === "retailer" and status === "pending"
     expectedVerificationDate: { type: Date },
+    reverificationRequested: { type: Boolean, default: false },
 
     verificationDate: { type: Date }, // set once an officer actually verifies
     expiryDate: { type: Date },

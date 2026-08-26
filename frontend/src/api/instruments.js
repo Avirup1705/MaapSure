@@ -45,3 +45,24 @@ export async function verifyInstrument(instrumentId, payload) {
   );
   return res.data;
 }
+
+// Retailer registers a brand-new instrument (starts as "pending")
+export async function registerRetailerInstrument(payload) {
+  const res = await axios.post(`${API_BASE}/retailer/register`, payload);
+  return res.data;
+}
+
+// Existing retailer looks up their instrument
+export async function loginRetailer(payload) {
+  const res = await axios.post(`${API_BASE}/retailer/login`, payload);
+  return res.data;
+}
+
+// Retailer books an officer visit for re-verification
+export async function bookVerification(instrumentId, requestedDate) {
+  const res = await axios.post(
+    `${API_BASE}/retailer/${instrumentId}/book-verification`,
+    { requestedDate }
+  );
+  return res.data;
+}

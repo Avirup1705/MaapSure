@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import dns from "dns";
 import instrumentRoutes from "./routes/instrumentRoutes.js";
+import retailerRoutes from "./routes/retailerRoutes.js";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.get("/api/health", (req, res) => {
 
 // Instrument routes — create, scan/get, list all
 app.use("/api/instruments", instrumentRoutes);
+app.use("/api/retailer", retailerRoutes);
 
 // Connect to MongoDB, then start the server only if connection succeeds
 mongoose
