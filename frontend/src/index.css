@@ -1,1 +1,75 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+:root {
+  --ink: #14213D;
+  --verify-blue: #1D6FA5;
+  --seal-gold: #B8860B;
+  --saffron: #E09F3E;
+  --paper: #EEF1F6;
+  --slate: #44506B;
+  --status-valid: #2F855A;
+  --status-pending: #B7791F;
+  --status-flagged: #C53030;
+  --status-tampered: #9B2C2C;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+.font-display {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.font-mono-data {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* The "stamp" — signature element used for status indicators everywhere */
+.stamp {
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-width: 2px;
+  border-style: solid;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.3em 0.75em;
+  border-radius: 4px;
+  transform: rotate(-1deg);
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.stamp-valid {
+  color: var(--status-valid);
+  border-color: var(--status-valid);
+  background: rgba(47, 133, 90, 0.06);
+}
+.stamp-pending {
+  color: var(--status-pending);
+  border-color: var(--status-pending);
+  background: rgba(183, 121, 31, 0.06);
+}
+.stamp-flagged, .stamp-tampered {
+  color: var(--status-flagged);
+  border-color: var(--status-flagged);
+  background: rgba(197, 48, 48, 0.06);
+}
+
+/* Subtle tick-mark motif — nods to a measuring scale */
+.tick-rule {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--ink) 0px,
+    var(--ink) 1px,
+    transparent 1px,
+    transparent 12px
+  );
+  height: 8px;
+  opacity: 0.15;
+}

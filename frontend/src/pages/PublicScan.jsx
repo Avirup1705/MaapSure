@@ -1,45 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getInstrumentStatus, submitFeedback } from "../api/instruments";
-
-// Maps status to color classes and a human-readable label
-const statusConfig = {
-  valid: {
-    label: "VALID",
-    bg: "bg-green-100",
-    text: "text-green-700",
-    ring: "ring-green-500",
-    icon: "✅",
-  },
-  pending: {
-    label: "PENDING VERIFICATION",
-    bg: "bg-blue-100",
-    text: "text-blue-700",
-    ring: "ring-blue-500",
-    icon: "⏳",
-  },
-  expired: {
-    label: "EXPIRED",
-    bg: "bg-orange-100",
-    text: "text-orange-700",
-    ring: "ring-orange-500",
-    icon: "⚠️",
-  },
-  flagged: {
-    label: "FLAGGED",
-    bg: "bg-red-100",
-    text: "text-red-700",
-    ring: "ring-red-500",
-    icon: "🚩",
-  },
-  tampered: {
-    label: "TAMPERED",
-    bg: "bg-red-100",
-    text: "text-red-700",
-    ring: "ring-red-500",
-    icon: "🚨",
-  },
-};
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import StatusStamp from "../components/StatusStamp";
 
 function formatDate(d) {
   return d ? new Date(d).toLocaleDateString() : "—";
@@ -65,102 +29,120 @@ export default function PublicScan() {
     fetchData();
   }, [instrumentId]);
 
+  const bgStyle = {
+    background: "linear-gradient(180deg, var(--paper) 0%, #E3E9F3 100%)",
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Loading instrument status...</p>
+      <div className="min-h-screen flex flex-col" style={bgStyle}>
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <p className="text-[var(--slate)] text-sm">
+            Loading instrument status...
+          </p>
+        </div>
+        <Footer />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="bg-white rounded-2xl shadow-md p-8 text-center max-w-sm w-full">
-          <p className="text-4xl mb-3">❌</p>
-          <p className="text-gray-700 font-medium">{error}</p>
+      <div className="min-h-screen flex flex-col" style={bgStyle}>
+        <Header />
+        <div className="flex-1 flex items-center justify-center px-4">
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-sm w-full border border-ink/5">
+            <p className="text-4xl mb-3">❌</p>
+            <p className="text-[var(--ink)] font-medium">{error}</p>
+          </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
-  const cfg = statusConfig[instrument.status] || statusConfig.valid;
-
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-8">
-      <div className="max-w-md w-full">
-        {/* Status Banner */}
-        <div
-          className={`rounded-2xl ${cfg.bg} ring-2 ${cfg.ring} p-6 text-center mb-4 shadow-sm`}
-        >
-          <p className="text-5xl mb-2">{cfg.icon}</p>
-          <p className={`text-2xl font-bold ${cfg.text}`}>{cfg.label}</p>
-          <p className="text-sm text-gray-600 mt-1">
-            Instrument ID: {instrument.instrumentId}
+    <div className="min-h-screen flex flex-col" style={bgStyle}>
+      <Header />
+
+      <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12">
+        {/* Status banner */}
+        <div className="bg-white rounded-xl shadow-lg border border-ink/5 p-8 text-center mb-6">
+          <StatusStamp status={instrument.status} size="large" />
+          <p className="font-mono-data text-lg text-[var(--ink)] font-semibold mt-4">
+            {instrument.instrumentId}
           </p>
         </div>
 
-        {/* Details Card */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 space-y-3">
-          <h2 className="text-lg font-semibold text-gray-800 mb-2">
-            Verification Details
-          </h2>
+        <div className="grid md:grid-cols-5 gap-6">
+          {/* Details */}
+          <div className="md:col-span-3 bg-white rounded-xl shadow-lg border border-ink/5 p-6 sm:p-8 space-y-4">
+            <h2 className="font-display text-lg font-semibold text-[var(--ink)] mb-2">
+              Verification Details
+            </h2>
 
-          <DetailRow
-            label="Instrument Type"
-            value={instrument.type?.replace("_", " ")}
-          />
-          <DetailRow label="Retailer / Owner" value={instrument.ownerName} />
-          <DetailRow label="Contact" value={instrument.ownerContact} />
-          <DetailRow label="Location" value={instrument.location} />
-
-          {instrument.status === "pending" ? (
             <DetailRow
-              label="Expected Officer Visit"
-              value={formatDate(instrument.expectedVerificationDate)}
+              label="Instrument Type"
+              value={instrument.type?.replace("_", " ")}
             />
-          ) : (
-            <>
-              <DetailRow
-                label="Verified On"
-                value={formatDate(instrument.verificationDate)}
-              />
-              <DetailRow
-                label="Valid Until"
-                value={formatDate(instrument.expiryDate)}
-              />
-            </>
-          )}
+            <DetailRow label="Retailer / Owner" value={instrument.ownerName} />
+            <DetailRow label="Contact" value={instrument.ownerContact} />
+            <DetailRow label="Location" value={instrument.location} />
 
-          {instrument.verificationHistory?.length > 0 && (
-            <div className="pt-3 border-t border-gray-100">
-              <p className="text-sm font-medium text-gray-700 mb-2">
-                Verification History
-              </p>
-              <div className="space-y-2">
-                {instrument.verificationHistory.map((entry, i) => (
-                  <div
-                    key={i}
-                    className="text-xs bg-gray-50 rounded-lg p-2 text-gray-600"
-                  >
-                    <span className="font-medium">{entry.result}</span> by{" "}
-                    {entry.officerName} on {formatDate(entry.date)}
-                    {entry.notes && (
-                      <p className="mt-1 text-gray-500">{entry.notes}</p>
-                    )}
-                  </div>
-                ))}
+            {instrument.status === "pending" ? (
+              <DetailRow
+                label="Expected Officer Visit"
+                value={formatDate(instrument.expectedVerificationDate)}
+              />
+            ) : (
+              <>
+                <DetailRow
+                  label="Verified On"
+                  value={formatDate(instrument.verificationDate)}
+                />
+                <DetailRow
+                  label="Valid Until"
+                  value={formatDate(instrument.expiryDate)}
+                />
+              </>
+            )}
+
+            {instrument.verificationHistory?.length > 0 && (
+              <div className="pt-4 border-t border-ink/10">
+                <p className="text-sm font-semibold text-[var(--ink)] mb-3">
+                  Verification History
+                </p>
+                <div className="space-y-2">
+                  {instrument.verificationHistory.map((entry, i) => (
+                    <div
+                      key={i}
+                      className="text-xs bg-[var(--paper)] rounded-lg p-3 text-[var(--slate)]"
+                    >
+                      <span className="font-medium text-[var(--ink)]">
+                        {entry.result}
+                      </span>{" "}
+                      by {entry.officerName} on {formatDate(entry.date)}
+                      {entry.notes && (
+                        <p className="mt-1 text-[var(--slate)]">
+                          {entry.notes}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+
+          {/* Feedback */}
+          <div className="md:col-span-2">
+            <FeedbackForm instrumentId={instrument.instrumentId} />
+          </div>
         </div>
+      </main>
 
-        <FeedbackForm instrumentId={instrument.instrumentId} />
-
-        <p className="text-center text-xs text-gray-400 mt-4">
-          Verified via MaapSure — a public trust layer for weighing instruments
-        </p>
-      </div>
+      <Footer />
     </div>
   );
 }
@@ -168,8 +150,8 @@ export default function PublicScan() {
 function DetailRow({ label, value }) {
   return (
     <div className="flex justify-between text-sm gap-4">
-      <span className="text-gray-500 shrink-0">{label}</span>
-      <span className="text-gray-800 font-medium text-right">
+      <span className="text-[var(--slate)] shrink-0">{label}</span>
+      <span className="text-[var(--ink)] font-medium text-right">
         {value || "—"}
       </span>
     </div>
@@ -203,16 +185,16 @@ function FeedbackForm({ instrumentId }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6 mt-4">
-      <h2 className="text-lg font-semibold text-gray-800 mb-1">
+    <div className="bg-white rounded-xl shadow-lg border border-ink/5 p-6 sm:p-8 h-full">
+      <h2 className="font-display text-lg font-semibold text-[var(--ink)] mb-1">
         Feedback / Complaint
       </h2>
-      <p className="text-sm text-gray-500 mb-4">
+      <p className="text-sm text-[var(--slate)] mb-5">
         Noticed something off about this instrument? Let us know.
       </p>
 
       {submitted ? (
-        <p className="text-green-600 text-sm font-medium">
+        <p className="text-[var(--status-valid)] text-sm font-medium">
           ✅ Thank you — your feedback has been recorded.
         </p>
       ) : (
@@ -222,28 +204,28 @@ function FeedbackForm({ instrumentId }) {
             placeholder="Your name (optional)"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full border border-ink/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--verify-blue)]"
           />
           <input
             type="text"
             placeholder="Contact number (optional)"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full border border-ink/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--verify-blue)]"
           />
           <textarea
             placeholder="Describe the issue or feedback..."
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             required
-            rows={3}
-            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            rows={4}
+            className="w-full border border-ink/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--verify-blue)]"
           />
           {error && <p className="text-red-600 text-xs">{error}</p>}
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-gray-800 hover:bg-gray-900 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition"
+            className="w-full bg-[var(--ink)] hover:brightness-125 disabled:opacity-50 text-white font-semibold py-3 rounded-lg text-sm transition"
           >
             {submitting ? "Submitting..." : "Submit Feedback"}
           </button>
