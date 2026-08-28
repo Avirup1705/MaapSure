@@ -61,15 +61,30 @@ body {
   background: rgba(197, 48, 48, 0.06);
 }
 
-/* Subtle tick-mark motif — nods to a measuring scale */
-.tick-rule {
-  background-image: repeating-linear-gradient(
-    90deg,
-    var(--ink) 0px,
-    var(--ink) 1px,
-    transparent 1px,
-    transparent 12px
-  );
-  height: 8px;
-  opacity: 0.15;
+.pill {
+  font-family: 'Inter', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.3em 0.85em;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+.pill-valid {
+  color: var(--status-valid);
+  background: rgba(47, 133, 90, 0.12);
+}
+.pill-pending {
+  color: var(--status-pending);
+  background: rgba(183, 121, 31, 0.12);
+}
+.pill-flagged {
+  color: var(--status-flagged);
+  background: rgba(197, 48, 48, 0.12);
+}
+
+.dot-grid {
+  background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px);
+  background-size: 22px 22px;
 }

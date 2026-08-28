@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getInstrumentStatus, submitFeedback } from "../api/instruments";
+import { QrCode } from "lucide-react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import StatusStamp from "../components/StatusStamp";
@@ -29,13 +30,9 @@ export default function PublicScan() {
     fetchData();
   }, [instrumentId]);
 
-  const bgStyle = {
-    background: "linear-gradient(180deg, var(--paper) 0%, #E3E9F3 100%)",
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col" style={bgStyle}>
+      <div className="min-h-screen flex flex-col">
         <Header />
         <div className="flex-1 flex items-center justify-center">
           <p className="text-[var(--slate)] text-sm">
@@ -49,7 +46,7 @@ export default function PublicScan() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col" style={bgStyle}>
+      <div className="min-h-screen flex flex-col">
         <Header />
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="bg-white rounded-xl shadow-lg p-8 text-center max-w-sm w-full border border-ink/5">
@@ -63,25 +60,26 @@ export default function PublicScan() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={bgStyle}>
+    <div className="min-h-screen flex flex-col">
       <Header />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 py-12">
-        {/* Status banner */}
-        <div className="bg-white rounded-xl shadow-lg border border-ink/5 p-8 text-center mb-6">
-          <StatusStamp status={instrument.status} size="large" />
-          <p className="font-mono-data text-lg text-[var(--ink)] font-semibold mt-4">
+        {/* Digital Passport card */}
+        <div className="bg-white rounded-xl shadow-lg border border-ink/5 p-6 sm:p-8 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <span className="font-mono-data text-[10px] text-[var(--slate)] uppercase tracking-wider">
+              Digital Passport
+            </span>
+            <div className="w-10 h-10 rounded-md bg-[var(--ink)] flex items-center justify-center">
+              <QrCode size={17} className="text-white" />
+            </div>
+          </div>
+          <p className="font-mono-data text-lg text-[var(--ink)] font-semibold mb-3">
             {instrument.instrumentId}
           </p>
-        </div>
+          <StatusStamp status={instrument.status} size="large" />
 
-        <div className="grid md:grid-cols-5 gap-6">
-          {/* Details */}
-          <div className="md:col-span-3 bg-white rounded-xl shadow-lg border border-ink/5 p-6 sm:p-8 space-y-4">
-            <h2 className="font-display text-lg font-semibold text-[var(--ink)] mb-2">
-              Verification Details
-            </h2>
-
+          <div className="grid sm:grid-cols-2 gap-y-3 gap-x-6 text-sm mt-6 pt-5 border-t border-ink/10">
             <DetailRow
               label="Instrument Type"
               value={instrument.type?.replace("_", " ")}
@@ -89,7 +87,6 @@ export default function PublicScan() {
             <DetailRow label="Retailer / Owner" value={instrument.ownerName} />
             <DetailRow label="Contact" value={instrument.ownerContact} />
             <DetailRow label="Location" value={instrument.location} />
-
             {instrument.status === "pending" ? (
               <DetailRow
                 label="Expected Officer Visit"
@@ -107,31 +104,43 @@ export default function PublicScan() {
                 />
               </>
             )}
+          </div>
 
-            {instrument.verificationHistory?.length > 0 && (
-              <div className="pt-4 border-t border-ink/10">
-                <p className="text-sm font-semibold text-[var(--ink)] mb-3">
-                  Verification History
-                </p>
-                <div className="space-y-2">
-                  {instrument.verificationHistory.map((entry, i) => (
-                    <div
-                      key={i}
-                      className="text-xs bg-[var(--paper)] rounded-lg p-3 text-[var(--slate)]"
-                    >
-                      <span className="font-medium text-[var(--ink)]">
-                        {entry.result}
-                      </span>{" "}
-                      by {entry.officerName} on {formatDate(entry.date)}
-                      {entry.notes && (
-                        <p className="mt-1 text-[var(--slate)]">
-                          {entry.notes}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
+          <p className="text-[10px] text-[var(--slate)] mt-5 pt-3 border-t border-ink/10">
+            Sealed record · appended, never overwritten. Anyone can read it,
+            only a credentialled officer can add to it.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-5 gap-6">
+          {/* History */}
+          <div className="md:col-span-3 bg-white rounded-xl shadow-lg border border-ink/5 p-6 sm:p-8">
+            <h2 className="font-display text-lg font-semibold text-[var(--ink)] mb-3">
+              Verification History
+            </h2>
+            {instrument.verificationHistory?.length > 0 ? (
+              <div className="space-y-2">
+                {instrument.verificationHistory.map((entry, i) => (
+                  <div
+                    key={i}
+                    className="text-xs bg-[var(--paper)] rounded-lg p-3 text-[var(--slate)]"
+                  >
+                    <span className="font-medium text-[var(--ink)]">
+                      {entry.result}
+                    </span>{" "}
+                    by {entry.officerName} on {formatDate(entry.date)}
+                    {entry.notes && (
+                      <p className="mt-1 text-[var(--slate)]">
+                        {entry.notes}
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
+            ) : (
+              <p className="text-sm text-[var(--slate)]">
+                No verification history yet.
+              </p>
             )}
           </div>
 
@@ -149,7 +158,7 @@ export default function PublicScan() {
 
 function DetailRow({ label, value }) {
   return (
-    <div className="flex justify-between text-sm gap-4">
+    <div className="flex justify-between gap-4">
       <span className="text-[var(--slate)] shrink-0">{label}</span>
       <span className="text-[var(--ink)] font-medium text-right">
         {value || "—"}

@@ -1,9 +1,21 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   registerRetailerInstrument,
   loginRetailer,
   bookVerification,
 } from "../api/instruments";
+import {
+  Store,
+  PlusCircle,
+  KeyRound,
+  CalendarClock,
+  AlertTriangle,
+  Eye,
+} from "lucide-react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import StatusStamp from "../components/StatusStamp";
 
 function daysUntil(dateStr) {
   if (!dateStr) return null;
@@ -11,44 +23,64 @@ function daysUntil(dateStr) {
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
 
+function RetailerHero({ title, subtitle }) {
+  return (
+    <section className="bg-gradient-to-br from-[var(--ink)] via-[#1B2E52] to-[var(--verify-blue)] relative overflow-hidden">
+      <div className="absolute inset-0 dot-grid" />
+      <div className="max-w-4xl mx-auto px-6 py-14 relative">
+        <p className="font-mono-data text-xs text-[var(--saffron)] tracking-widest uppercase mb-3 font-semibold">
+          Retailer Portal
+        </p>
+        <h1 className="font-display text-3xl sm:text-4xl font-bold text-white leading-tight mb-2">
+          {title}
+        </h1>
+        {subtitle && <p className="text-white/70">{subtitle}</p>}
+      </div>
+    </section>
+  );
+}
+
 export default function RetailerDashboard() {
   const [step, setStep] = useState("choice");
 
   if (step === "choice") {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="max-w-sm w-full">
-          <h1 className="text-xl font-bold text-gray-800 text-center mb-1">
-            Retailer Portal
-          </h1>
-          <p className="text-sm text-gray-500 text-center mb-6">
-            Are you registering a new instrument or checking an existing one?
-          </p>
-          <div className="space-y-3">
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <RetailerHero title="Register, track, and re-verify your instruments." />
+        <main className="flex-1 max-w-2xl w-full mx-auto px-6 -mt-6 pb-16 relative">
+          <div className="grid sm:grid-cols-2 gap-4">
             <button
               onClick={() => setStep("new")}
-              className="w-full bg-white hover:shadow-md transition rounded-2xl shadow-sm p-5 text-left border border-gray-100"
+              className="bg-white hover:shadow-xl transition rounded-xl shadow-lg p-6 text-left border border-ink/5"
             >
-              <p className="font-semibold text-gray-800">
-                🆕 New Instrument
+              <div className="w-11 h-11 rounded-lg bg-[var(--paper)] flex items-center justify-center mb-3">
+                <PlusCircle size={20} className="text-[var(--verify-blue)]" />
+              </div>
+              <p className="font-display font-semibold text-[var(--ink)]">
+                Register New
               </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Register a new instrument for verification.
+              <p className="text-xs text-[var(--slate)] mt-1">
+                Add a new instrument for verification.
               </p>
             </button>
             <button
               onClick={() => setStep("login")}
-              className="w-full bg-white hover:shadow-md transition rounded-2xl shadow-sm p-5 text-left border border-gray-100"
+              className="bg-white hover:shadow-xl transition rounded-xl shadow-lg p-6 text-left border border-ink/5"
             >
-              <p className="font-semibold text-gray-800">
-                🔑 Existing Instrument
+              <div className="w-11 h-11 rounded-lg bg-[var(--paper)] flex items-center justify-center mb-3">
+                <KeyRound size={20} className="text-[var(--saffron)]" />
+              </div>
+              <p className="font-display font-semibold text-[var(--ink)]">
+                My Instruments
               </p>
-              <p className="text-xs text-gray-500 mt-1">
-                View status, expiry, and book re-verification.
+              <p className="text-xs text-[var(--slate)] mt-1">
+                Sign in to view status, expiry, and book re-verification.
               </p>
             </button>
           </div>
-        </div>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -110,79 +142,89 @@ function NewInstrumentForm({ onBack }) {
 
   if (result) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="max-w-sm w-full bg-white rounded-2xl shadow-sm p-6 text-center">
-          <p className="text-4xl mb-3">⏳</p>
-          <p className="font-semibold text-gray-800 mb-1">
-            Instrument registered — pending verification
-          </p>
-          <p className="text-sm text-gray-500 mb-4">
-            An officer will visit around{" "}
-            {new Date(result.expectedVerificationDate).toLocaleDateString()}.
-          </p>
-          {result.qrCodeUrl && (
-            <img
-              src={result.qrCodeUrl}
-              alt="QR Code"
-              className="mx-auto w-40 h-40 border border-gray-100 rounded-lg mb-3"
-            />
-          )}
-          <p className="text-xs text-gray-400">
-            Instrument ID: {result.instrumentId}
-          </p>
-          <button
-            onClick={onBack}
-            className="w-full mt-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 rounded-lg text-sm transition"
-          >
-            Back to Retailer Portal
-          </button>
-        </div>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <RetailerHero title="Instrument registered." />
+        <main className="flex-1 max-w-md w-full mx-auto px-6 -mt-6 pb-16 relative">
+          <div className="bg-white rounded-xl shadow-lg border border-ink/5 p-8 text-center">
+            <StatusStamp status="pending" size="large" />
+            <p className="text-sm text-[var(--slate)] mt-4 mb-4">
+              An officer will visit around{" "}
+              {new Date(result.expectedVerificationDate).toLocaleDateString()}.
+            </p>
+            {result.qrCodeUrl && (
+              <img
+                src={result.qrCodeUrl}
+                alt="QR Code"
+                className="mx-auto w-40 h-40 border border-ink/10 rounded-lg mb-3"
+              />
+            )}
+            <p className="text-xs font-mono-data text-[var(--slate)]">
+              {result.instrumentId}
+            </p>
+            <button
+              onClick={onBack}
+              className="w-full mt-5 bg-[var(--paper)] hover:bg-ink/5 border border-ink/10 text-[var(--ink)] font-semibold py-3 rounded-lg text-sm transition"
+            >
+              Back to Retailer Portal
+            </button>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <RetailerHero title="Register a new instrument" />
+      <main className="flex-1 max-w-2xl w-full mx-auto px-6 -mt-6 pb-16 relative">
         <button
           onClick={onBack}
-          className="text-sm text-gray-500 hover:text-gray-700 mb-3"
+          className="text-sm text-white/80 hover:text-white mb-4"
         >
           ← Back
         </button>
-        <h1 className="text-xl font-bold text-gray-800 mb-1">
-          Register New Instrument
-        </h1>
-        <p className="text-sm text-gray-500 mb-6">
-          This instrument will be marked pending until an officer verifies it.
-        </p>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl shadow-sm p-6 space-y-4"
+          className="bg-white rounded-xl shadow-lg border border-ink/5 p-6 sm:p-8 space-y-4"
         >
-          <Field
-            label="Instrument ID"
-            name="instrumentId"
-            value={form.instrumentId}
-            onChange={handleChange}
-            placeholder="MS-2026-00010"
-          />
-          <div>
-            <label className="text-sm text-gray-600 block mb-1">
-              Instrument Type
-            </label>
-            <select
-              name="type"
-              value={form.type}
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-[var(--ink)] flex items-center justify-center">
+              <PlusCircle size={18} className="text-white" />
+            </div>
+            <p className="font-display font-semibold text-[var(--ink)]">
+              Register a new instrument
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field
+              label="Instrument ID"
+              name="instrumentId"
+              value={form.instrumentId}
               onChange={handleChange}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="weighing_scale">Weighing Scale</option>
-              <option value="weighbridge">Weighbridge</option>
-              <option value="petrol_dispenser">Petrol Dispenser</option>
-              <option value="other">Other</option>
-            </select>
+              placeholder="MS-2026-00010"
+              mono
+            />
+            <div>
+              <label className="text-sm text-[var(--slate)] block mb-1.5">
+                Instrument Type
+              </label>
+              <select
+                name="type"
+                value={form.type}
+                onChange={handleChange}
+                className="w-full border border-ink/15 rounded-lg px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--verify-blue)]"
+              >
+                <option value="weighing_scale">Weighing Scale</option>
+                <option value="weighbridge">Weighbridge</option>
+                <option value="petrol_dispenser">Petrol Dispenser</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
           </div>
           <Field
             label="Owner / Retailer Name"
@@ -191,20 +233,22 @@ function NewInstrumentForm({ onBack }) {
             onChange={handleChange}
             placeholder="Sharma General Store"
           />
-          <Field
-            label="Phone Number"
-            name="ownerContact"
-            value={form.ownerContact}
-            onChange={handleChange}
-            placeholder="9876543210"
-          />
-          <Field
-            label="Location"
-            name="location"
-            value={form.location}
-            onChange={handleChange}
-            placeholder="MG Road, Bhubaneswar"
-          />
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field
+              label="Phone Number"
+              name="ownerContact"
+              value={form.ownerContact}
+              onChange={handleChange}
+              placeholder="9876543210"
+            />
+            <Field
+              label="Location"
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              placeholder="MG Road, Bhubaneswar"
+            />
+          </div>
           <Field
             label="Expected Officer Visit Date"
             name="expectedVerificationDate"
@@ -212,33 +256,40 @@ function NewInstrumentForm({ onBack }) {
             value={form.expectedVerificationDate}
             onChange={handleChange}
           />
-          <Field
-            label="Set Password"
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            placeholder="At least 4 characters"
-          />
-          <Field
-            label="Confirm Password"
-            name="confirmPassword"
-            type="password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-          />
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Field
+              label="Set Password"
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              placeholder="At least 4 characters"
+            />
+            <Field
+              label="Confirm Password"
+              name="confirmPassword"
+              type="password"
+              value={form.confirmPassword}
+              onChange={handleChange}
+            />
+          </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition"
+            className="w-full bg-[var(--status-valid)] hover:brightness-110 disabled:opacity-50 text-white font-semibold py-3.5 rounded-lg text-sm transition"
           >
-            {submitting ? "Registering..." : "Register Instrument"}
+            {submitting ? "Registering..." : "Register instrument"}
           </button>
+          <p className="text-xs text-[var(--slate)] text-center">
+            A MaapSure ID and QR code are issued immediately; the instrument
+            stays "pending" until an officer verifies it.
+          </p>
         </form>
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 }
@@ -272,34 +323,29 @@ function ExistingLogin({ onBack }) {
   }
 
   if (instrument) {
-    return (
-      <RetailerInstrumentView instrument={instrument} onBack={onBack} />
-    );
+    return <RetailerInstrumentView instrument={instrument} onBack={onBack} />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-sm w-full">
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <RetailerHero title="Sign in to your instrument" />
+      <main className="flex-1 max-w-md w-full mx-auto px-6 -mt-6 pb-16 relative">
         <button
           onClick={onBack}
-          className="text-sm text-gray-500 hover:text-gray-700 mb-3"
+          className="text-sm text-white/80 hover:text-white mb-4"
         >
           ← Back
         </button>
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <h1 className="text-xl font-bold text-gray-800 mb-1">
-            Existing Instrument
-          </h1>
-          <p className="text-sm text-gray-500 mb-6">
-            Enter your details to view your instrument.
-          </p>
-          <form onSubmit={handleSubmit} className="space-y-3">
+        <div className="bg-white rounded-xl shadow-lg border border-ink/5 p-6 sm:p-8">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <Field
               label="Instrument ID"
               name="instrumentId"
               value={form.instrumentId}
               onChange={handleChange}
               placeholder="MS-2026-00010"
+              mono
             />
             <Field
               label="Phone Number"
@@ -319,13 +365,14 @@ function ExistingLogin({ onBack }) {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition"
+              className="w-full bg-[var(--saffron)] hover:brightness-110 disabled:opacity-50 text-[var(--ink)] font-semibold py-3.5 rounded-lg text-sm transition"
             >
               {submitting ? "Checking..." : "View Instrument"}
             </button>
           </form>
         </div>
-      </div>
+      </main>
+      <Footer />
     </div>
   );
 }
@@ -357,110 +404,130 @@ function RetailerInstrumentView({ instrument, onBack }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <RetailerHero
+        title={current.ownerName}
+        subtitle={`${current.instrumentId} · ${current.location}`}
+      />
+      <main className="flex-1 max-w-4xl w-full mx-auto px-6 -mt-6 pb-16 relative">
         <button
           onClick={onBack}
-          className="text-sm text-gray-500 hover:text-gray-700 mb-3"
+          className="text-sm text-white/80 hover:text-white mb-4"
         >
           ← Back
         </button>
 
         {showAlert && (
-          <div className="bg-orange-100 text-orange-700 rounded-xl p-3 text-sm mb-4">
-            ⚠️{" "}
-            {days < 0
-              ? "Verification has expired."
-              : `Verification is due in ${days} day(s).`}{" "}
-            Consider booking re-verification soon.
+          <div className="bg-white border-l-4 border-[var(--status-pending)] rounded-lg p-4 text-sm mb-6 shadow-lg flex items-start gap-3">
+            <AlertTriangle
+              size={18}
+              className="text-[var(--status-pending)] shrink-0 mt-0.5"
+            />
+            <span className="text-[var(--ink)]">
+              {days < 0
+                ? "Verification has expired."
+                : `Verification is due in ${days} day(s).`}{" "}
+              Consider booking re-verification soon.
+            </span>
           </div>
         )}
 
-        <div className="bg-white rounded-2xl shadow-sm p-6 space-y-3">
-          <h1 className="text-lg font-bold text-gray-800 mb-1">
-            {current.instrumentId}
-          </h1>
-          <Row label="Status" value={current.status} />
-          <Row label="Type" value={current.type?.replace("_", " ")} />
-          <Row label="Owner" value={current.ownerName} />
-          <Row label="Location" value={current.location} />
-          {current.status === "pending" ? (
-            <Row
-              label="Expected Officer Visit"
-              value={
-                current.expectedVerificationDate
-                  ? new Date(
-                      current.expectedVerificationDate
-                    ).toLocaleDateString()
-                  : "—"
-              }
-            />
-          ) : (
-            <>
+        <div className="bg-white rounded-xl shadow-lg border border-ink/5 p-6 sm:p-8 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <p className="font-mono-data text-sm text-[var(--slate)]">
+              {current.instrumentId}
+            </p>
+            <StatusStamp status={current.status} />
+          </div>
+          <div className="grid sm:grid-cols-2 gap-y-3 gap-x-6 text-sm">
+            <Row label="Type" value={current.type?.replace("_", " ")} />
+            <Row label="Location" value={current.location} />
+            {current.status === "pending" ? (
               <Row
-                label="Last Verified"
+                label="Expected Officer Visit"
                 value={
-                  current.verificationDate
-                    ? new Date(current.verificationDate).toLocaleDateString()
+                  current.expectedVerificationDate
+                    ? new Date(
+                        current.expectedVerificationDate
+                      ).toLocaleDateString()
                     : "—"
                 }
               />
-              <Row
-                label="Expiry Date"
-                value={
-                  current.expiryDate
-                    ? new Date(current.expiryDate).toLocaleDateString()
-                    : "—"
-                }
-              />
-            </>
-          )}
+            ) : (
+              <>
+                <Row
+                  label="Last Verified"
+                  value={
+                    current.verificationDate
+                      ? new Date(current.verificationDate).toLocaleDateString()
+                      : "—"
+                  }
+                />
+                <Row
+                  label="Expiry Date"
+                  value={
+                    current.expiryDate
+                      ? new Date(current.expiryDate).toLocaleDateString()
+                      : "—"
+                  }
+                />
+              </>
+            )}
+          </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm p-6 mt-4">
+        <div className="flex flex-wrap gap-3">
+          <Link
+            to={`/scan/${current.instrumentId}`}
+            className="bg-white border border-ink/10 hover:shadow-lg text-[var(--ink)] font-semibold text-sm px-5 py-3 rounded-lg transition flex items-center gap-2"
+          >
+            <Eye size={16} /> View record
+          </Link>
           {!showBookForm ? (
             <button
               onClick={() => setShowBookForm(true)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg text-sm transition"
+              className="bg-[var(--ink)] hover:brightness-125 text-white font-semibold text-sm px-5 py-3 rounded-lg transition flex items-center gap-2"
             >
-              📅 Book Officer Verification
+              <CalendarClock size={16} /> Book re-verification
             </button>
           ) : (
-            <form onSubmit={handleBook} className="space-y-3">
-              <label className="text-sm text-gray-600 block mb-1">
-                Preferred Verification Date
-              </label>
+            <form
+              onSubmit={handleBook}
+              className="bg-white rounded-lg border border-ink/10 p-3 flex flex-col sm:flex-row gap-2 items-stretch"
+            >
               <input
                 type="date"
                 value={bookDate}
                 onChange={(e) => setBookDate(e.target.value)}
                 required
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="border border-ink/15 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--verify-blue)]"
               />
               <button
                 type="submit"
                 disabled={booking}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition"
+                className="bg-[var(--verify-blue)] hover:brightness-110 disabled:opacity-50 text-white font-semibold px-4 py-2 rounded-lg text-sm transition"
               >
-                {booking ? "Booking..." : "Confirm Booking"}
+                {booking ? "Booking..." : "Confirm"}
               </button>
             </form>
           )}
-          {message && (
-            <p className="text-sm text-green-600 mt-3 text-center">
-              {message}
-            </p>
-          )}
         </div>
-      </div>
+        {message && (
+          <p className="text-sm text-[var(--status-valid)] mt-3">{message}</p>
+        )}
+      </main>
+      <Footer />
     </div>
   );
 }
 
-function Field({ label, name, value, onChange, placeholder, type = "text" }) {
+function Field({ label, name, value, onChange, placeholder, type = "text", mono }) {
   return (
     <div>
-      <label className="text-sm text-gray-600 block mb-1">{label}</label>
+      <label className="text-sm text-[var(--slate)] block mb-1.5">
+        {label}
+      </label>
       <input
         type={type}
         name={name}
@@ -468,7 +535,9 @@ function Field({ label, name, value, onChange, placeholder, type = "text" }) {
         onChange={onChange}
         placeholder={placeholder}
         required
-        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className={`w-full border border-ink/15 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--verify-blue)] ${
+          mono ? "font-mono-data" : ""
+        }`}
       />
     </div>
   );
@@ -476,9 +545,9 @@ function Field({ label, name, value, onChange, placeholder, type = "text" }) {
 
 function Row({ label, value }) {
   return (
-    <div className="flex justify-between text-sm">
-      <span className="text-gray-500">{label}</span>
-      <span className="text-gray-800 font-medium">{value || "—"}</span>
+    <div className="flex justify-between">
+      <span className="text-[var(--slate)]">{label}</span>
+      <span className="text-[var(--ink)] font-medium">{value || "—"}</span>
     </div>
   );
 }

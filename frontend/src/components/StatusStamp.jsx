@@ -1,17 +1,17 @@
 const STAMP_CONFIG = {
-  valid: { label: "Valid", icon: "✓", className: "stamp-valid" },
-  pending: { label: "Pending", icon: "◷", className: "stamp-pending" },
-  expired: { label: "Expired", icon: "!", className: "stamp-pending" },
-  flagged: { label: "Flagged", icon: "⚑", className: "stamp-flagged" },
-  tampered: { label: "Tampered", icon: "⚠", className: "stamp-tampered" },
+  valid: { label: "Verified & valid", icon: "✓", className: "pill-valid" },
+  pending: { label: "Awaiting verification", icon: "◷", className: "pill-pending" },
+  expired: { label: "Verification expired", icon: "!", className: "pill-flagged" },
+  flagged: { label: "Flagged by consumers", icon: "⚑", className: "pill-flagged" },
+  tampered: { label: "Tampered — under review", icon: "⚠", className: "pill-flagged" },
 };
 
 export default function StatusStamp({ status, size = "normal" }) {
   const cfg = STAMP_CONFIG[status] || STAMP_CONFIG.valid;
-  const sizeClass = size === "large" ? "text-sm px-4 py-2" : "";
+  const sizeClass = size === "large" ? "text-sm px-4 py-1.5" : "";
 
   return (
-    <span className={`stamp ${cfg.className} ${sizeClass}`}>
+    <span className={`pill ${cfg.className} ${sizeClass}`}>
       <span>{cfg.icon}</span>
       {cfg.label}
     </span>

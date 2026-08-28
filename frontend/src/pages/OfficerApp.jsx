@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { getInstrumentStatus, verifyInstrument } from "../api/instruments";
+import { UserCheck, ScanLine, CheckCircle2, IdCard } from "lucide-react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import StatusStamp from "../components/StatusStamp";
 
 const CHECKLIST_CONDITIONS = [
   "Seal intact",
@@ -9,8 +13,28 @@ const CHECKLIST_CONDITIONS = [
   "Location matches registration",
 ];
 
+function OfficerHero() {
+  return (
+    <section className="bg-gradient-to-br from-[var(--ink)] via-[#1B2E52] to-[var(--verify-blue)] relative overflow-hidden">
+      <div className="absolute inset-0 dot-grid" />
+      <div className="max-w-4xl mx-auto px-6 py-14 relative">
+        <p className="font-mono-data text-xs text-[var(--saffron)] tracking-widest uppercase mb-3 font-semibold">
+          Field Officer
+        </p>
+        <h1 className="font-display text-3xl sm:text-4xl font-bold text-white leading-tight mb-3">
+          On-site verification console
+        </h1>
+        <p className="text-white/70 max-w-xl">
+          Every entry is sealed against your officer ID and appended to the
+          instrument's permanent record.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export default function OfficerApp() {
-  const [step, setStep] = useState("identity"); // identity -> search -> verify -> done
+  const [step, setStep] = useState("identity");
   const [officer, setOfficer] = useState({ name: "", id: "" });
   const [searchId, setSearchId] = useState("");
   const [instrument, setInstrument] = useState(null);
@@ -39,91 +63,97 @@ export default function OfficerApp() {
     }
   }
 
-  if (step === "identity") {
+  if (step === "identity" || step === "search") {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="max-w-sm w-full bg-white rounded-2xl shadow-sm p-6">
-          <h1 className="text-xl font-bold text-gray-800 mb-1">
-            Officer Identity
-          </h1>
-          <p className="text-sm text-gray-500 mb-6">
-            Confirm your identity before accessing instrument records.
-          </p>
-          <form onSubmit={handleIdentitySubmit} className="space-y-4">
-            <div>
-              <label className="text-sm text-gray-600 block mb-1">
-                Officer Name
-              </label>
-              <input
-                type="text"
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <OfficerHero />
+        <main className="flex-1 max-w-2xl w-full mx-auto px-6 -mt-6 pb-16 space-y-4 relative">
+          {/* Step 01 */}
+          <div className="bg-white rounded-xl shadow-lg border border-ink/5 p-6 sm:p-8">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-11 h-11 rounded-lg bg-[var(--ink)] flex items-center justify-center shrink-0">
+                <IdCard size={18} className="text-white" />
+              </div>
+              <div>
+                <p className="text-xs font-mono-data text-[var(--slate)]">
+                  Step 01
+                </p>
+                <p className="font-display font-semibold text-[var(--ink)]">
+                  Identify yourself
+                </p>
+              </div>
+            </div>
+            <form
+              onSubmit={handleIdentitySubmit}
+              className="grid sm:grid-cols-2 gap-4 items-end"
+            >
+              <Field
+                label="Officer name"
                 value={officer.name}
-                onChange={(e) =>
-                  setOfficer({ ...officer, name: e.target.value })
-                }
-                placeholder="Officer Rakesh"
-                required
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                onChange={(v) => setOfficer({ ...officer, name: v })}
+                placeholder="R. Deshpande"
               />
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Field
+                    label="Officer ID"
+                    value={officer.id}
+                    onChange={(v) => setOfficer({ ...officer, id: v })}
+                    placeholder="LM-KA-0471"
+                    mono
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-[var(--ink)] hover:brightness-125 text-white font-semibold text-sm px-5 py-3 rounded-lg transition h-fit"
+                >
+                  Continue
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Step 02 */}
+          <div
+            className={`bg-white rounded-xl shadow-lg border border-ink/5 p-6 sm:p-8 ${
+              step !== "search" ? "opacity-50 pointer-events-none" : ""
+            }`}
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-11 h-11 rounded-lg bg-[var(--ink)] flex items-center justify-center shrink-0">
+                <ScanLine size={18} className="text-white" />
+              </div>
+              <div>
+                <p className="text-xs font-mono-data text-[var(--slate)]">
+                  Step 02
+                </p>
+                <p className="font-display font-semibold text-[var(--ink)]">
+                  Scan or enter instrument
+                </p>
+              </div>
             </div>
-            <div>
-              <label className="text-sm text-gray-600 block mb-1">
-                Officer ID
-              </label>
+            <form onSubmit={handleSearchSubmit} className="flex gap-2">
               <input
                 type="text"
-                value={officer.id}
-                onChange={(e) =>
-                  setOfficer({ ...officer, id: e.target.value })
-                }
-                placeholder="OFF-1023"
-                required
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                value={searchId}
+                onChange={(e) => setSearchId(e.target.value)}
+                placeholder="MS-2026-00001"
+                disabled={step !== "search"}
+                className="flex-1 border border-ink/15 rounded-lg px-4 py-3 text-sm font-mono-data focus:outline-none focus:ring-2 focus:ring-[var(--verify-blue)]"
               />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg text-sm transition"
-            >
-              Continue
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
-  if (step === "search") {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="max-w-sm w-full bg-white rounded-2xl shadow-sm p-6">
-          <p className="text-xs text-gray-400 mb-1">
-            Signed in as {officer.name} ({officer.id})
-          </p>
-          <h1 className="text-xl font-bold text-gray-800 mb-1">
-            Find Instrument
-          </h1>
-          <p className="text-sm text-gray-500 mb-6">
-            Enter the Instrument ID to begin verification.
-          </p>
-          <form onSubmit={handleSearchSubmit} className="space-y-3">
-            <input
-              type="text"
-              value={searchId}
-              onChange={(e) => setSearchId(e.target.value)}
-              placeholder="e.g. MS-2026-00001"
-              required
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            {error && <p className="text-red-600 text-xs">{error}</p>}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition"
-            >
-              {loading ? "Searching..." : "Find Instrument"}
-            </button>
-          </form>
-        </div>
+              <button
+                type="submit"
+                disabled={loading || step !== "search"}
+                className="bg-[var(--saffron)] hover:brightness-110 disabled:opacity-50 text-[var(--ink)] font-semibold text-sm px-5 py-3 rounded-lg transition whitespace-nowrap"
+              >
+                {loading ? "Searching..." : "Pull record"}
+              </button>
+            </form>
+            {error && <p className="text-red-600 text-xs mt-2">{error}</p>}
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -196,114 +226,153 @@ function VerifyStep({ officer, instrument, onDone }) {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="max-w-sm w-full bg-white rounded-2xl shadow-sm p-6 text-center">
-          <p className="text-4xl mb-3">✅</p>
-          <p className="font-semibold text-gray-800 mb-1">
-            Verification submitted
-          </p>
-          <p className="text-sm text-gray-500 mb-4">
-            {instrument.instrumentId} has been updated.
-          </p>
-          <button
-            onClick={onDone}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg text-sm transition"
-          >
-            Verify Another Instrument
-          </button>
-        </div>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <OfficerHero />
+        <main className="flex-1 max-w-md w-full mx-auto px-6 -mt-6 pb-16 relative">
+          <div className="bg-white rounded-xl shadow-lg border border-ink/5 p-8 text-center">
+            <CheckCircle2
+              size={44}
+              className="text-[var(--status-valid)] mx-auto mb-3"
+            />
+            <p className="font-display font-semibold text-lg text-[var(--ink)] mb-1">
+              Verification submitted
+            </p>
+            <p className="text-sm text-[var(--slate)] mb-6">
+              {instrument.instrumentId} has been updated.
+            </p>
+            <button
+              onClick={onDone}
+              className="w-full bg-[var(--verify-blue)] hover:brightness-110 text-white font-semibold py-3.5 rounded-lg text-sm transition"
+            >
+              Verify Another Instrument
+            </button>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-md mx-auto">
-        <p className="text-xs text-gray-400 mb-1">
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <OfficerHero />
+      <main className="flex-1 max-w-4xl w-full mx-auto px-6 -mt-6 pb-16 relative">
+        <p className="text-xs font-mono-data text-white/80 mb-2">
           Officer: {officer.name} ({officer.id})
         </p>
-        <h1 className="text-xl font-bold text-gray-800 mb-4">
-          {instrument.instrumentId}
-        </h1>
 
-        <div className="bg-white rounded-2xl shadow-sm p-5 mb-4 space-y-1 text-sm">
-          <Row label="Type" value={instrument.type?.replace("_", " ")} />
-          <Row label="Owner" value={instrument.ownerName} />
-          <Row label="Location" value={instrument.location} />
-          <Row label="Current Status" value={instrument.status} />
+        <div className="bg-white rounded-xl shadow-lg border border-ink/5 p-8 text-center mb-6">
+          <StatusStamp status={instrument.status} size="large" />
+          <p className="font-mono-data text-lg text-[var(--ink)] font-semibold mt-4">
+            {instrument.instrumentId}
+          </p>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-2xl shadow-sm p-5 space-y-4"
-        >
-          <div>
-            <p className="text-sm font-medium text-gray-700 mb-2">
-              Compliance Checklist
-            </p>
-            <div className="space-y-2">
-              {checklist.map((item, i) => (
-                <label
-                  key={item.condition}
-                  className="flex items-center gap-2 text-sm text-gray-700"
-                >
-                  <input
-                    type="checkbox"
-                    checked={item.passed}
-                    onChange={() => toggleCondition(i)}
-                    className="w-4 h-4 rounded border-gray-300"
-                  />
-                  {item.condition}
-                </label>
-              ))}
-            </div>
+        <div className="grid md:grid-cols-5 gap-6">
+          <div className="md:col-span-2 bg-white rounded-xl shadow-lg border border-ink/5 p-6 sm:p-8 space-y-3 h-fit">
+            <h2 className="font-display text-lg font-semibold text-[var(--ink)] mb-2">
+              Instrument
+            </h2>
+            <Row label="Type" value={instrument.type?.replace("_", " ")} />
+            <Row label="Owner" value={instrument.ownerName} />
+            <Row label="Location" value={instrument.location} />
           </div>
 
-          <div>
-            <label className="text-sm text-gray-600 block mb-1">
-              Next Verification Expiry Date
-            </label>
-            <input
-              type="date"
-              value={expiryDate}
-              onChange={(e) => setExpiryDate(e.target.value)}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          <div>
-            <label className="text-sm text-gray-600 block mb-1">
-              Comment (required if any condition failed)
-            </label>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              rows={3}
-              placeholder="Note any issues found during inspection..."
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {error && <p className="text-red-600 text-xs">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg text-sm transition"
+          <form
+            onSubmit={handleSubmit}
+            className="md:col-span-3 bg-white rounded-xl shadow-lg border border-ink/5 p-6 sm:p-8 space-y-5"
           >
-            {submitting ? "Submitting..." : "Submit Verification"}
-          </button>
-        </form>
-      </div>
+            <div>
+              <p className="text-sm font-semibold text-[var(--ink)] mb-3">
+                Compliance Checklist
+              </p>
+              <div className="space-y-2.5">
+                {checklist.map((item, i) => (
+                  <label
+                    key={item.condition}
+                    className="flex items-center gap-2.5 text-sm text-[var(--ink)] bg-[var(--paper)] rounded-lg px-3 py-2.5 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={item.passed}
+                      onChange={() => toggleCondition(i)}
+                      className="w-4 h-4 rounded border-gray-300 accent-[var(--verify-blue)]"
+                    />
+                    {item.condition}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm text-[var(--slate)] block mb-1.5">
+                Next Verification Expiry Date
+              </label>
+              <input
+                type="date"
+                value={expiryDate}
+                onChange={(e) => setExpiryDate(e.target.value)}
+                className="w-full border border-ink/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--verify-blue)]"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm text-[var(--slate)] block mb-1.5">
+                Comment (required if any condition failed)
+              </label>
+              <textarea
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                rows={3}
+                placeholder="Note any issues found during inspection..."
+                className="w-full border border-ink/15 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--verify-blue)]"
+              />
+            </div>
+
+            {error && <p className="text-red-600 text-xs">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full bg-[var(--verify-blue)] hover:brightness-110 disabled:opacity-50 text-white font-semibold py-3.5 rounded-lg text-sm transition"
+            >
+              {submitting ? "Submitting..." : "Submit Verification"}
+            </button>
+          </form>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, placeholder, mono }) {
+  return (
+    <div>
+      <label className="text-sm text-[var(--slate)] block mb-1.5">
+        {label}
+      </label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        required
+        className={`w-full border border-ink/15 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--verify-blue)] ${
+          mono ? "font-mono-data" : ""
+        }`}
+      />
     </div>
   );
 }
 
 function Row({ label, value }) {
   return (
-    <div className="flex justify-between">
-      <span className="text-gray-500">{label}</span>
-      <span className="text-gray-800 font-medium">{value || "—"}</span>
+    <div className="flex justify-between text-sm">
+      <span className="text-[var(--slate)]">{label}</span>
+      <span className="text-[var(--ink)] font-medium">{value || "—"}</span>
     </div>
   );
 }
